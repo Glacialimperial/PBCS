@@ -1,35 +1,55 @@
-local function createHighlightBox(item, name)
+local function createHighlightBox(item, itemName)
     local box = Instance.new("BoxHandleAdornment")
-    box.Size = item.Size + Vector3.new(0.1, 0.1, 0.1) -- Adjust size to make the box slightly larger than the item
+    box.Size = item.Size
     box.Adornee = item
+    box.Color3 = Color3.new(1, 0, 0) -- Red color for visibility
+    box.Transparency = 0.5
     box.AlwaysOnTop = true
-    box.ZIndex = 0
-    box.Color3 = Color3.fromRGB(101, 24, 107)
-    box.Transparency = 0.3
+    box.ZIndex = 5
     box.Parent = item
 
-    local billboard = Instance.new("BillboardGui")
-    billboard.Size = UDim2.new(0, 100, 0, 50)
-    billboard.StudsOffset = Vector3.new(0, 3, 0)
-    billboard.Adornee = item
-    billboard.AlwaysOnTop = true
-    billboard.Parent = item
+    local nameTag = Instance.new("BillboardGui", item)
+    nameTag.Adornee = item
+    nameTag.Size = UDim2.new(0, 100, 0, 50)
+    nameTag.StudsOffset = Vector3.new(0, item.Size.Y + 0.5, 0)
+    nameTag.AlwaysOnTop = true -- Ensure visibility through walls
 
-    local textLabel = Instance.new("TextLabel")
+    local textLabel = Instance.new("TextLabel", nameTag)
     textLabel.Size = UDim2.new(1, 0, 1, 0)
+    textLabel.Text = itemName
+    textLabel.TextColor3 = Color3.new(1, 1, 1)
     textLabel.BackgroundTransparency = 1
-    textLabel.Text = name
-    textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     textLabel.TextScaled = true
-    textLabel.Parent = billboard
+end
+
+local function createLineToItem(item)
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local rootPart = character:WaitForChild("HumanoidRootPart")
+
+    local attachment0 = Instance.new("Attachment", rootPart)
+    local attachment1 = Instance.new("Attachment", item)
+
+    local beam = Instance.new("Beam")
+    beam.Attachment0 = attachment0
+    beam.Attachment1 = attachment1
+    beam.Width0 = 0.1
+    beam.Width1 = 0.1
+    beam.FaceCamera = true
+    beam.Color = ColorSequence.new(Color3.new(1, 0, 0)) -- Red line
+    beam.Parent = rootPart
 end
 
 local function highlightItems()
-    for _, v in pairs(game.Workspace.Item_Spawns.Items:GetChildren()) do
-        local item = v:FindFirstChild("MeshPart")
-        if item and item:FindFirstChild("PointLight") then
-            createHighlightBox(item, v.Name)
+    while true do
+        for _, v in pairs(game.Workspace.Item_Spawns.Items:GetChildren()) do
+            local item = v:FindFirstChild("MeshPart")
+            if item and item:FindFirstChild("PointLight") then
+                createHighlightBox(item, v.Name)
+                createLineToItem(item)
+            end
         end
+        wait(1) -- Prevents too frequent updates, can be adjusted as needed
     end
 end
 
