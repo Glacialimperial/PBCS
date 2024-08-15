@@ -1,56 +1,77 @@
-local function createHighlightBox(item, itemName)
-    local box = Instance.new("BoxHandleAdornment")
-    box.Size = item.Size
-    box.Adornee = item
-    box.Color3 = Color3.new(1, 0, 0) -- Red color for visibility
-    box.Transparency = 0.5
-    box.AlwaysOnTop = true
-    box.ZIndex = 5
-    box.Parent = item
+local itemsToHighlight = {
+	["Mysterious Arrow"] = true,
+	["Rokakaka"] = true,
+	["Gold Coin"] = true,
+	["Diamond"] = true,
+	["Pure Rokakaka"] = true,
+	["Quinton's Glove"] = true,
+	["Steel Ball"] = true,
+	["Rib Cage of The Saint's Corpse"] = true,
+	["Zepellin's Headband"] = true,
+	["Stone Mask"] = true,
+	["Ancient Scroll"] = true,
+	["Dio's Diary"] = true,
+	["Lucky Stone Mask"] = true,
+	["Lucky Arrow"] = true,
+	["Gold Umbrella"] = true,
+	["Left Arm of The Saint's Corpse"] = true,
+	["Heart of The Saint's Corpse"] = true,
+	["Pelvis of The Saint's Corpse"] = true
+}
 
-    local nameTag = Instance.new("BillboardGui", item)
-    nameTag.Adornee = item
-    nameTag.Size = UDim2.new(0, 100, 0, 50)
-    nameTag.StudsOffset = Vector3.new(0, item.Size.Y + 0.5, 0)
-    nameTag.AlwaysOnTop = true -- Ensure visibility through walls
+local function createBeam(part)
+	local attachment0 = Instance.new("Attachment", part)
+	local attachment1 = Instance.new("Attachment", game.Players.LocalPlayer.Character.HumanoidRootPart)
 
-    local textLabel = Instance.new("TextLabel", nameTag)
-    textLabel.Size = UDim2.new(1, 0, 1, 0)
-    textLabel.Text = itemName
-    textLabel.TextColor3 = Color3.new(1, 1, 1)
-    textLabel.BackgroundTransparency = 1
-    textLabel.TextScaled = true
+	local beam = Instance.new("Beam")
+	beam.Attachment0 = attachment0
+	beam.Attachment1 = attachment1
+	beam.Color = ColorSequence.new(Color3.new(1, 0, 0)) -- Red color
+	beam.FaceCamera = true
+	beam.Width0 = 0.1
+	beam.Width1 = 0.1
+	beam.Transparency = NumberSequence.new(0.5)
+	beam.Parent = part
+
+	return beam
 end
 
-local function createLineToItem(item)
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local rootPart = character:WaitForChild("HumanoidRootPart")
+local function highlightItem(item, name)
+	-- Draw a box around the item
+	local box = Instance.new("BoxHandleAdornment")
+	box.Adornee = item
+	box.Size = item.Size + Vector3.new(0.5, 0.5, 0.5)
+	box.Color3 = Color3.new(1, 0, 0) -- Red color
+	box.AlwaysOnTop = true
+	box.ZIndex = 5
+	box.Transparency = 0.5
+	box.Parent = item
 
-    local attachment0 = Instance.new("Attachment", rootPart)
-    local attachment1 = Instance.new("Attachment", item)
+	-- Display the name of the item
+	local billboard = Instance.new("BillboardGui", item)
+	billboard.Adornee = item
+	billboard.Size = UDim2.new(0, 200, 0, 50)
+	billboard.StudsOffset = Vector3.new(0, 2, 0)
+	billboard.AlwaysOnTop = true
 
-    local beam = Instance.new("Beam")
-    beam.Attachment0 = attachment0
-    beam.Attachment1 = attachment1
-    beam.Width0 = 0.1
-    beam.Width1 = 0.1
-    beam.FaceCamera = true
-    beam.Color = ColorSequence.new(Color3.new(1, 0, 0)) -- Red line
-    beam.Parent = rootPart
+	local textLabel = Instance.new("TextLabel", billboard)
+	textLabel.Size = UDim2.new(1, 0, 1, 0)
+	textLabel.Text = name
+	textLabel.TextColor3 = Color3.new(1, 1, 1)
+	textLabel.BackgroundTransparency = 1
+	textLabel.TextScaled = true
 end
 
-local function highlightItems()
-    while true do
-        for _, v in pairs(game.Workspace.Item_Spawns.Items:GetChildren()) do
-            local item = v:FindFirstChild("MeshPart")
-            if item and item:FindFirstChild("PointLight") then
-                createHighlightBox(item, v.Name)
-                createLineToItem(item)
-            end
-        end
-        wait(1) -- Prevents too frequent updates, can be adjusted as needed
-    end
+local function scanForItems()
+	for _, v in pairs(game.Workspace:GetDescendants()) do
+		if v:IsA("Model") and v:FindFirstChild("MeshPart") and v:FindFirstChild("PointLight") then
+			local itemName = v.Name
+			if itemsToHighlight[itemName] then
+				highlightItem(v.MeshPart, itemName)
+				createBeam(v.MeshPart)
+			end
+		end
+	end
 end
 
-highlightItems()
+scanForItems()
