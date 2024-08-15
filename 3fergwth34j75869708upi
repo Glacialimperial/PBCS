@@ -1,0 +1,36 @@
+local function createHighlightBox(item, name)
+    local box = Instance.new("BoxHandleAdornment")
+    box.Size = item.Size + Vector3.new(0.1, 0.1, 0.1) -- Adjust size to make the box slightly larger than the item
+    box.Adornee = item
+    box.AlwaysOnTop = true
+    box.ZIndex = 0
+    box.Color3 = Color3.fromRGB(101, 24, 107)
+    box.Transparency = 0.3
+    box.Parent = item
+
+    local billboard = Instance.new("BillboardGui")
+    billboard.Size = UDim2.new(0, 100, 0, 50)
+    billboard.StudsOffset = Vector3.new(0, 3, 0)
+    billboard.Adornee = item
+    billboard.AlwaysOnTop = true
+    billboard.Parent = item
+
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Size = UDim2.new(1, 0, 1, 0)
+    textLabel.BackgroundTransparency = 1
+    textLabel.Text = name
+    textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    textLabel.TextScaled = true
+    textLabel.Parent = billboard
+end
+
+local function highlightItems()
+    for _, v in pairs(game.Workspace.Item_Spawns.Items:GetChildren()) do
+        local item = v:FindFirstChild("MeshPart")
+        if item and item:FindFirstChild("PointLight") then
+            createHighlightBox(item, v.Name)
+        end
+    end
+end
+
+highlightItems()
