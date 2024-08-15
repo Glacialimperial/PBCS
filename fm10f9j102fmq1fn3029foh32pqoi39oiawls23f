@@ -1,0 +1,152 @@
+local ScreenGui = Instance.new("ScreenGui")
+local Frame = Instance.new("Frame")
+local Bottomtext = Instance.new("TextLabel")
+local UICorner = Instance.new("UICorner")
+local TitleUnderline = Instance.new("TextLabel")
+local UICorner_2 = Instance.new("UICorner")
+local highlightItems = Instance.new("TextButton")
+local UICorner_4 = Instance.new("UICorner")
+local UICorner_5 = Instance.new("UICorner")
+local Title = Instance.new("TextLabel")
+local UICorner_6 = Instance.new("UICorner")
+
+-- Properties:
+
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+Frame.Parent = ScreenGui
+Frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Frame.BackgroundTransparency = 0.300
+Frame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Frame.BorderSizePixel = 0
+Frame.Position = UDim2.new(0.01, 0, 0.16, 0)
+Frame.Size = UDim2.new(0, 245, 0, 209)
+
+Bottomtext.Name = "Bottom text"
+Bottomtext.Parent = Frame
+Bottomtext.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Bottomtext.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Bottomtext.BorderSizePixel = 0
+Bottomtext.Position = UDim2.new(0.0851010829, 0, 0.86340785, 0)
+Bottomtext.Size = UDim2.new(0, 200, 0, 21)
+Bottomtext.Font = Enum.Font.SourceSansSemibold
+Bottomtext.Text = "Made by Vuffi on Discord"
+Bottomtext.TextColor3 = Color3.fromRGB(101, 24, 107)
+Bottomtext.TextSize = 14.000
+
+UICorner.CornerRadius = UDim.new(0.200000003, 0)
+UICorner.Parent = Bottomtext
+
+TitleUnderline.Name = "TitleUnderline"
+TitleUnderline.Parent = Frame
+TitleUnderline.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+TitleUnderline.BorderColor3 = Color3.fromRGB(0, 0, 0)
+TitleUnderline.BorderSizePixel = 0
+TitleUnderline.Position = UDim2.new(0.0245901011, 0, 0.0435312092, 0)
+TitleUnderline.Size = UDim2.new(0, 232, 0, 48)
+TitleUnderline.Font = Enum.Font.SourceSansBold
+TitleUnderline.Text = "YBA GUI"
+TitleUnderline.TextColor3 = Color3.fromRGB(101, 24, 107)
+TitleUnderline.TextScaled = true
+TitleUnderline.TextSize = 14.000
+TitleUnderline.TextWrapped = true
+
+UICorner_2.CornerRadius = UDim.new(0.150000006, 0)
+UICorner_2.Parent = TitleUnderline
+
+highlightItems.Name = "highlightItems"
+highlightItems.Parent = Frame
+highlightItems.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+highlightItems.BorderColor3 = Color3.fromRGB(0, 0, 0)
+highlightItems.BorderSizePixel = 0
+highlightItems.Position = UDim2.new(0.115576386, 0, 0.336887568, 0)
+highlightItems.Size = UDim2.new(0, 185, 0, 40)
+highlightItems.Font = Enum.Font.SourceSansSemibold
+highlightItems.Text = "Highlight Items: off"
+highlightItems.TextColor3 = Color3.fromRGB(101, 24, 107)
+highlightItems.TextScaled = true
+highlightItems.TextSize = 14.000
+highlightItems.TextWrapped = true
+
+UICorner_4.CornerRadius = UDim.new(0.150000006, 0)
+UICorner_4.Parent = highlightItems
+
+UICorner_5.CornerRadius = UDim.new(0.0299999993, 0)
+UICorner_5.Parent = Frame
+
+Title.Name = "Title"
+Title.Parent = Frame
+Title.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Title.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Title.BorderSizePixel = 0
+Title.Position = UDim2.new(0.0245901011, 0, 0.0435312428, 0)
+Title.Size = UDim2.new(0, 232, 0, 44)
+Title.Font = Enum.Font.SourceSansBold
+Title.Text = "YBA GUI"
+Title.TextColor3 = Color3.fromRGB(101, 24, 107)
+Title.TextScaled = true
+Title.TextSize = 14.000
+Title.TextWrapped = true
+
+UICorner_6.CornerRadius = UDim.new(0.150000006, 0)
+UICorner_6.Parent = Title
+
+-- Scripts:
+
+local function QLMOT_fake_script() -- ScreenGui.LocalScript 
+	local script = Instance.new('LocalScript', ScreenGui)
+
+	local highlightOn = false
+	local highlightLines = {}
+
+	function drawLineToItem(item)
+		local player = game.Players.LocalPlayer
+		local char = player.Character
+		local hrp = char and char:FindFirstChild("HumanoidRootPart")
+		
+		if hrp and item:IsDescendantOf(game.Workspace) then
+			local line = Drawing.new("Line")
+			line.From = hrp.Position
+			line.To = item.Position
+			line.Color = Color3.fromRGB(101, 24, 107)
+			line.Thickness = 2
+			line.Visible = true
+			table.insert(highlightLines, line)
+		end
+	end
+
+	function clearLines()
+		for _, line in pairs(highlightLines) do
+			line.Visible = false
+			line:Remove()
+		end
+		highlightLines = {}
+	end
+
+	function highlightItemsFunc()
+		while highlightOn do
+			clearLines()
+			for _, v in pairs(game.Workspace.Item_Spawns.Items:GetChildren()) do
+				local item = v:FindFirstChild("MeshPart")
+				if item and item:FindFirstChild("PointLight") then
+					drawLineToItem(item)
+				end
+			end
+			task.wait(1)
+		end
+		clearLines()
+	end
+
+	local highlightButton = script.Parent.Frame.highlightItems
+	highlightButton.MouseButton1Click:Connect(function()
+		highlightOn = not highlightOn
+		if highlightOn then
+			highlightButton.Text = "Highlight Items: on"
+			coroutine.wrap(highlightItemsFunc)()
+		else
+			highlightButton.Text = "Highlight Items: off"
+		end
+		print("Highlight Items is now " .. tostring(highlightOn))
+	end)
+end
+coroutine.wrap(QLMOT_fake_script)()
